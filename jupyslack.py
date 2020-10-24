@@ -37,7 +37,7 @@ class slackInstance():
             'channel': self.slack_channel,
             'text': text,
             'icon_url': 'https://i.pinimg.com/originals/38/50/0f/38500f35aa4476ace495347eb9fc2224.png',
-            'username': 'Jupyslack Bot',
+            'username': 'Jupyslack',
             'blocks': json.dumps(blocks) if blocks else None
         }).json()
 
@@ -53,10 +53,14 @@ def load_ipython_extension(ipython):
     inst = slackInstance()
 
     @register_line_magic("jupyslack")
-    def lmagic(arg):
-        if arg == 'setup':
-            print("Please enter Slack token :")
-            inst.slack_token = input()
-            print("Please enter Slack channel (#<channel_name>) :")
-            inst.slack_channel = input()
-            inst.check_setup()
+    def lmagic(args):
+        command = args.split(" ")
+        if command[0] == 'setup':
+            if len(command) != 3:
+                print("Please retry with : jupyslack setup <slack_token> #<channel_name>")
+            else:
+                inst.slack_token, inst.slack_channel = command[1], command[2]
+                inst.check_setup()
+
+
+
