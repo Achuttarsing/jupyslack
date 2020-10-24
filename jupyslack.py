@@ -37,7 +37,7 @@ class slackInstance():
             'token': self.slack_token,
             'channel': self.slack_channel,
             'text': text,
-            'icon_url': 'https://i.pinimg.com/originals/38/50/0f/38500f35aa4476ace495347eb9fc2224.png',
+            'icon_url': 'https://freeiconshop.com/wp-content/uploads/edd/earth-flat.png',
             'username': 'Jupyslack',
             'blocks': json.dumps(blocks) if blocks else None
         }).json()
@@ -48,10 +48,15 @@ class slackInstance():
             print("Connected to Slack !")
         else:
             print("Error :",res['error'])
-        
+
+    def notify_end_execution(self, result):
+        self.post_message_to_slack('Execution ended')
+
+
+inst = slackInstance()
 
 def load_ipython_extension(ipython):
-    inst = slackInstance()
+    
 
     @register_line_magic("jupyslack")
     def lmagic(args):
@@ -65,6 +70,17 @@ def load_ipython_extension(ipython):
                 tok_str, chan_str = re.sub('[\'|\"]$','',tok_str), re.sub('[\'|\"]$','',chan_str)
                 inst.slack_token, inst.slack_channel = tok_str, chan_str
                 inst.check_setup()
+        elif command[0] == 'track':
+            ipython.events.register('post_run_cell', inst.notify_end_execution)
+        elif command[0] == 'untrack':
+            ipython.events.unregister('post_run_cell', inst.notify_end_execution)
+
+
+def unload_ipython_extension(ipython):
+    
+
+    ipython.events.unregister('post_run_cell', inst.notify_end_execution)
+
 
 
 
