@@ -11,6 +11,7 @@ setup(
   url="https://github.com/Achuttarsing/jupyslack",
   description="Slack integration to notebooks",
   long_description=open("README.md").read(),
+  long_description_content_type="text/markdown",
   keywords="ipython slack notebook jupyslack",
   install_requires = ['ipython','requests'],
   classifiers=[
