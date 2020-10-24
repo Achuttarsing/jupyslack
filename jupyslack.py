@@ -1,6 +1,7 @@
 from IPython.core.magic import register_line_magic
 import requests
 import json
+import re
 
 start_block = [
         {
@@ -59,7 +60,10 @@ def load_ipython_extension(ipython):
             if len(command) != 3:
                 print("Please retry with : jupyslack setup <slack_token> #<channel_name>")
             else:
-                inst.slack_token, inst.slack_channel = command[1], command[2]
+                # regex to accept both "token", 'token' and token
+                tok_str, chan_str = re.sub('^[\'|\"]','',command[1]), re.sub('^[\'|\"]','',command[2])
+                tok_str, chan_str = re.sub('[\'|\"]$','',tok_str), re.sub('[\'|\"]$','',chan_str)
+                inst.slack_token, inst.slack_channel = tok_str, chan_str
                 inst.check_setup()
 
 
