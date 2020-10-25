@@ -28,7 +28,10 @@ start_block = [
         }
     ]
 
-
+def remove_brackets(text):
+    text_cleaned = re.sub('^[\'|\"]','',command[1])
+    text_cleaned = re.sub('[\'|\"]$','',text_cleaned)
+    return text_cleaned
 
 class slackInstance():
     def __init__(self):
@@ -91,9 +94,7 @@ def load_ipython_extension(ipython):
                 print("Please retry with : jupyslack setup <slack_token> #<channel_name>")
             else:
                 # regex to accept both "token", 'token' and token
-                tok_str, chan_str = re.sub('^[\'|\"]','',command[1]), re.sub('^[\'|\"]','',command[2])
-                tok_str, chan_str = re.sub('[\'|\"]$','',tok_str), re.sub('[\'|\"]$','',chan_str)
-                inst.slack_token, inst.slack_channel = tok_str, chan_str
+                inst.slack_token, inst.slack_channel = remove_brackets(command[1]), remove_brackets(command[2])
                 inst.check_setup()
         elif command[0] == 'track':
             inst.before_execution()
