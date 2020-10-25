@@ -17,14 +17,8 @@ In [2]: %jupyslack setup <slack_token> #<channel_name>
 "Connected to Slack !"
 ```
 
-## Turn on cell execution tracking
+## To track a cell, simply put this magic line at its beggining :
 
 ```python
 In [3]: %jupyslack track
-```
-
-## Turn off cell execution tracking
-
-```python
-In [3]: %jupyslack untrack
 ```
