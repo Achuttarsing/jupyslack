@@ -22,3 +22,9 @@ In [2]: %jupyslack setup <slack_token> #<channel_name>
 ```python
 In [3]: %jupyslack track
 ```
+
+#### You can give a name to the cell with : -name
+
+```python
+In [4]: %jupyslack track -name <name>
+```
