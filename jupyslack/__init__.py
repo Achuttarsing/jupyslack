@@ -60,10 +60,10 @@ class slackInstance():
         else:
             print("Error :",res['error'])
 
-    def notify_end_execution(self):
+    def notify_end_execution(self, results):
         self.post_message_to_slack('Execution ended')
 
-    def notify_end_execution_colab(self, results):
+    def notify_end_execution_colab(self):
         self.post_message_to_slack('Execution ended')
 
 
