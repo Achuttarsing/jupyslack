@@ -27,10 +27,21 @@ start_block = [
         }
     ]
 
+import IPython
+ip = IPython.get_ipython()
+
+def f():
+    cell_content = ip.get_parent()['content']['code']
+    print(cell_content)
+    print(ip.get_parent()['content'])
+    print('ff')
+    print(ip.get_parent())
+
 class slackInstance():
     def __init__(self):
         self.slack_token = None
         self.slack_channel = None
+        self.ipython_version = IPython.version_info[0]
 
     def post_message_to_slack(self, text, blocks = None):
         return requests.post('https://slack.com/api/chat.postMessage', {
@@ -49,11 +60,19 @@ class slackInstance():
         else:
             print("Error :",res['error'])
 
-    def notify_end_execution(self, result):
+    def notify_end_execution(self):
+        self.post_message_to_slack('Execution ended')
+
+    def notify_end_execution_colab(self, results):
         self.post_message_to_slack('Execution ended')
 
 
 inst = slackInstance()
+
+if inst.ipython_version > 5:
+    notify_end_execution = inst.notify_end_execution
+else:
+    notify_end_execution = inst.notify_end_execution_colab
 
 def load_ipython_extension(ipython):
     
@@ -71,9 +90,10 @@ def load_ipython_extension(ipython):
                 inst.slack_token, inst.slack_channel = tok_str, chan_str
                 inst.check_setup()
         elif command[0] == 'track':
-            ipython.events.register('post_run_cell', inst.notify_end_execution)
+            ipython.events.register('post_run_cell', notify_end_execution) 
         elif command[0] == 'untrack':
-            ipython.events.unregister('post_run_cell', inst.notify_end_execution)
+            ipython.events.unregister('post_run_cell', notify_end_execution)
+
 
 
 
