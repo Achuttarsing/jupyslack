@@ -3,6 +3,7 @@ import requests
 import json
 import re
 import time
+import shlex
 
 start_block = [
         {
@@ -28,17 +29,13 @@ start_block = [
         }
     ]
 
-def remove_brackets(text):
-    text_cleaned = re.sub('^[\'|\"]','',command[1])
-    text_cleaned = re.sub('[\'|\"]$','',text_cleaned)
-    return text_cleaned
-
 class slackInstance():
     def __init__(self):
         self.slack_token = None
         self.slack_channel = None
         self.ipython_version = IPython.version_info[0]
         self.starttime = None
+        self.name = None
 
     def post_message_to_slack(self, text, blocks = None):
         return requests.post('https://slack.com/api/chat.postMessage', {
@@ -57,19 +54,28 @@ class slackInstance():
         else:
             print("Error :",res['error'])
 
-    def before_execution(self):
+    def before_execution(self, name=None):
         self.starttime = time.time()
+        if name is not None : self.name = name
 
     def notify_end_execution(self, results):
         runtime = time.time() - self.starttime
-        self.post_message_to_slack('Execution ended in '+str(runtime)+" sec")
+        if self.name is not None:
+            self.post_message_to_slack(self.name+' Execution ended in '+str(runtime)+" sec")
+        else:
+            self.post_message_to_slack('Execution ended in '+str(runtime)+" sec")
         self.starttime = None
+        self.name = None
         IPython.get_ipython().events.unregister('post_run_cell', notify_end_execution)
 
     def notify_end_execution_colab(self):
         runtime = time.time() - self.starttime
-        self.post_message_to_slack('Execution ended in '+str(runtime)+" sec")
+        if self.name is not None:
+            self.post_message_to_slack(self.name+' Execution ended in '+str(runtime)+" sec")
+        else:
+            self.post_message_to_slack('Execution ended in '+str(runtime)+" sec")
         self.starttime = None
+        self.name = None
         IPython.get_ipython().events.unregister('post_run_cell', notify_end_execution)
 
 
@@ -88,16 +94,16 @@ def load_ipython_extension(ipython):
 
     @register_line_magic("jupyslack")
     def lmagic(args):
-        command = args.split(" ")
+        command = shlex.split(args)
         if command[0] == 'setup':
             if len(command) != 3:
                 print("Please retry with : jupyslack setup <slack_token> #<channel_name>")
             else:
-                # regex to accept both "token", 'token' and token
-                inst.slack_token, inst.slack_channel = remove_brackets(command[1]), remove_brackets(command[2])
+                inst.slack_token, inst.slack_channel = command[1], command[2]
                 inst.check_setup()
         elif command[0] == 'track':
-            inst.before_execution()
+            name = command[command.index("-name")+1] if "-name" in command else None
+            inst.before_execution(name=name)
             ipython.events.register('post_run_cell', notify_end_execution)
 
 
