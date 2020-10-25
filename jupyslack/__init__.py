@@ -2,6 +2,7 @@ from IPython.core.magic import register_line_magic
 import requests
 import json
 import re
+import time
 
 start_block = [
         {
@@ -34,6 +35,7 @@ class slackInstance():
         self.slack_token = None
         self.slack_channel = None
         self.ipython_version = IPython.version_info[0]
+        self.starttime = None
 
     def post_message_to_slack(self, text, blocks = None):
         return requests.post('https://slack.com/api/chat.postMessage', {
@@ -52,12 +54,19 @@ class slackInstance():
         else:
             print("Error :",res['error'])
 
+    def before_execution(self):
+        self.starttime = time.time()
+
     def notify_end_execution(self, results):
-        self.post_message_to_slack('Execution ended')
+        runtime = time.time() - self.starttime
+        self.post_message_to_slack('Execution ended in '+str(runtime)+" sec")
+        self.starttime = None
         IPython.get_ipython().events.unregister('post_run_cell', notify_end_execution)
 
     def notify_end_execution_colab(self):
-        self.post_message_to_slack('Execution ended')
+        runtime = time.time() - self.starttime
+        self.post_message_to_slack('Execution ended in '+str(runtime)+" sec")
+        self.starttime = None
         IPython.get_ipython().events.unregister('post_run_cell', notify_end_execution)
 
 
@@ -87,6 +96,7 @@ def load_ipython_extension(ipython):
                 inst.slack_token, inst.slack_channel = tok_str, chan_str
                 inst.check_setup()
         elif command[0] == 'track':
+            inst.before_execution()
             ipython.events.register('post_run_cell', notify_end_execution)
 
 
