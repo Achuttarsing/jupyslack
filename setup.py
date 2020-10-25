@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
   name="Jupyslack",
-  version="0.1.3",
+  version="0.1.4",
   packages=["jupyslack"],
   license="MIT",
   author="Adrien Chuttarsing",
