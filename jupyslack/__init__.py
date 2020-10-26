@@ -35,14 +35,14 @@ class slackInstance():
         self.slack_channel = None
         self.ipython_version = IPython.version_info[0]
         self.starttime = None
-        self.name = None
+        self.name = "Cell"
 
     def post_message_to_slack(self, text, blocks = None):
         return requests.post('https://slack.com/api/chat.postMessage', {
             'token': self.slack_token,
             'channel': self.slack_channel,
             'text': text,
-            'icon_url': 'https://freeiconshop.com/wp-content/uploads/edd/earth-flat.png',
+            'icon_emoji': ':telescope:',
             'username': 'Jupyslack',
             'blocks': json.dumps(blocks) if blocks else None
         }).json()
@@ -59,24 +59,33 @@ class slackInstance():
         if name is not None : self.name = name
 
     def notify_end_execution(self, results):
-        runtime = time.time() - self.starttime
-        if self.name is not None:
-            self.post_message_to_slack(self.name+' Execution ended in '+str(runtime)+" sec")
-        else:
-            self.post_message_to_slack('Execution ended in '+str(runtime)+" sec")
+        self.post_message_to_slack(self.name+' execution ended', blocks=self.build_block_end_execution())
         self.starttime = None
-        self.name = None
+        self.name = "Cell"
         IPython.get_ipython().events.unregister('post_run_cell', notify_end_execution)
 
     def notify_end_execution_colab(self):
-        runtime = time.time() - self.starttime
-        if self.name is not None:
-            self.post_message_to_slack(self.name+' Execution ended in '+str(runtime)+" sec")
-        else:
-            self.post_message_to_slack('Execution ended in '+str(runtime)+" sec")
+        self.post_message_to_slack(self.name+' execution ended', blocks=self.build_block_end_execution())
         self.starttime = None
-        self.name = None
+        self.name = "Cell"
         IPython.get_ipython().events.unregister('post_run_cell', notify_end_execution)
+
+    def build_block_end_execution(self):
+        endtime = time.time()
+        runtime = round(endtime - self.starttime)
+        block = [
+            {
+                "type": "divider"
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "*"+self.name+"* execution has just ended with success ! :white_check_mark:\n\n*Start time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(self.starttime))+"\n*End time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(endtime))+"\n*Execution time:* "+time.strftime('%H:%M:%S', time.gmtime(runtime))
+                }
+            }
+        ]
+        return block
 
 
 import IPython
