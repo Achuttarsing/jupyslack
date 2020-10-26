@@ -17,14 +17,14 @@ start_block = [
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "I'm now connected to your notebook ! I good do plenty of things like :"
+                "text": "I'm now connected to your notebook ! \n\nNow you can track a cell by adding *%jupyslack track* at its begginning. And you can add the following arguments :"
             }
         },
         {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "• Keep you in track \n• Manage and update attendees \n• Get notified about changes of your meetings"
+                "text": "• *-name* : to specify a name to the cell"
             }
         }
     ]
