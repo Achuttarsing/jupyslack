@@ -73,15 +73,29 @@ class slackInstance():
     def build_block_end_execution(self):
         endtime = time.time()
         runtime = round(endtime - self.starttime)
+        if ip.last_execution_succeeded == True:
+            text_header = ":white_check_mark: Successful execution ! "
+            text_main = "*"+self.name+"* execution has just ended with success !\n\n*Start time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(self.starttime))+"\n*End time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(endtime))+"\n*Execution time:* "+time.strftime('%H:%M:%S', time.gmtime(runtime))
+        else:
+            text_header = ":x: Execution error ! "
+            text_main = "*"+self.name+"* execution encountered an error !\n\n*Start time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(self.starttime))+"\n*End time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(endtime))+"\n*Execution time:* "+time.strftime('%H:%M:%S', time.gmtime(runtime))
         block = [
             {
                 "type": "divider"
             },
             {
+                "type": "header",
+                "text": {
+                    "type": "plain_text",
+                    "text": text_header,
+                    "emoji": True
+                }
+            },
+            {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "*"+self.name+"* execution has just ended with success ! :white_check_mark:\n\n*Start time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(self.starttime))+"\n*End time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(endtime))+"\n*Execution time:* "+time.strftime('%H:%M:%S', time.gmtime(runtime))
+                    "text": text_main
                 }
             }
         ]
