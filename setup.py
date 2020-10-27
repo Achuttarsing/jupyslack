@@ -2,7 +2,7 @@
 from setuptools import setup
 
 setup(
-  name="Jupyslack",
+  name="jupyslack",
   version="0.1.5",
   packages=["jupyslack"],
   license="MIT",
