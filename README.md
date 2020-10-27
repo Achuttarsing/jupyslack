@@ -2,6 +2,9 @@
 
 Slack integration for notebooks. Keep track of your code right in your pocket.
 
+<img src="https://user-images.githubusercontent.com/24542347/97366361-7bc44f00-18a7-11eb-8450-5a3fcec5f3bf.PNG" alt="drawing" width="200"/><img src="https://user-images.githubusercontent.com/24542347/97365895-ba0d3e80-18a6-11eb-97df-9ae89cbade42.PNG" alt="drawing" width="200"/>
+
+
 ## Installation :
 
 ```console
