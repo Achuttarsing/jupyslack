@@ -78,7 +78,7 @@ class slackInstance():
             text_main = "*"+self.name+"* execution has just ended with success !\n\n*Start time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(self.starttime))+"\n*End time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(endtime))+"\n*Execution time:* "+time.strftime('%H:%M:%S', time.gmtime(runtime))
         else:
             text_header = ":x: Execution error ! "
-            text_main = "*"+self.name+"* execution encountered an error !\n\n*Start time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(self.starttime))+"\n*End time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(endtime))+"\n*Execution time:* "+time.strftime('%H:%M:%S', time.gmtime(runtime))
+            text_main = "*"+self.name+"* execution encountered an error :\n\n`"+str(ip.last_execution_result.error_in_exec)+"`\n\n*Start time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(self.starttime))+"\n*End time:* "+time.strftime('%d-%b %H:%M:%S', time.localtime(endtime))+"\n*Execution time:* "+time.strftime('%H:%M:%S', time.gmtime(runtime))
         block = [
             {
                 "type": "divider"
