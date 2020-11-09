@@ -16,7 +16,7 @@ First, you need to create an authorization token on your Slack account.
 ```python
 In [1]: %load_ext jupyslack
 
-In [2]: %jupyslack setup <slack_token> #<channel_name>
+In [2]: %jupyslack setup <slack_token> <channel_name>
 "Connected to Slack !"
 ```
 
