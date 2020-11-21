@@ -131,8 +131,3 @@ def load_ipython_extension(ipython):
             ipython.events.register('post_run_cell', notify_end_execution)
 
 
-
-
-
-
-
