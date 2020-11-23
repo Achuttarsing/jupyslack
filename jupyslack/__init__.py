@@ -123,7 +123,7 @@ def load_ipython_extension(ipython):
                 print("Please retry with : jupyslack setup <slack_token> #<channel_name>")
             else:
                 inst.slack_channel = command[2] if command[2][0] == '#' else '#'+command[2]
-                inst.slack_token = command[1]
+                inst.slack_token = globals()[command[1][1:]] if command[1][0] == '$' else command[1]
                 inst.check_setup()
         elif command[0] == 'track':
             name = command[command.index("-name")+1] if "-name" in command else None
