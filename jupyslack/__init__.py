@@ -26,6 +26,20 @@ start_block = [
                 "type": "mrkdwn",
                 "text": "• *-name* : to specify a name to the cell"
             }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "Otherwise, for the lazy ones, you can activate the automatic tracking with *%jupyslack autotrack*. This will notify you for all cells whose runtime is above a certain threshold :"
+            }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "• *-mintime* : minimum runtime (sec) to send the notification (default=120)"
+            }
         }
     ]
 
@@ -36,6 +50,8 @@ class slackInstance():
         self.ipython_version = IPython.version_info[0]
         self.starttime = None
         self.name = "Cell"
+        self.autotrack_threshold = None
+        self.manual_track = False
 
     def post_message_to_slack(self, text, blocks = None):
         return requests.post('https://slack.com/api/chat.postMessage', {
@@ -47,18 +63,27 @@ class slackInstance():
             'blocks': json.dumps(blocks) if blocks else None
         }).json()
 
-    def check_setup(self):
-        res = self.post_message_to_slack('(jupyslack) Connected to Slack !', blocks=start_block)
-        if res['ok'] is True:
-            print("Connected to Slack !")
-        else:
-            print("Error :",res['error'])
+    def setup_autotrack(self, autotrack_threshold=120):
+        self.autotrack_threshold = autotrack_threshold
+        print('(jupyslack) autotrack activated for all',str(self.autotrack_threshold)+"+ sec execution cells")
 
-    def before_execution(self, info, name=None):
+    def check_setup(self):
+        res = self.post_message_to_slack('Connected to Slack !', blocks=start_block)
+        if res['ok'] is True:
+            print("(jupyslack) Connected to Slack !")
+        else:
+            print("(jupyslack) Error :",res['error'])
+
+    def before_execution(self, name=None):
+        self.starttime = time.time()
+        self.manual_track = True
+        if name is not None : self.name = name
+
+    def pre_before_execution(self, info, name=None):
         self.starttime = time.time()
         if name is not None : self.name = name
 
-    def before_execution_colab(self, name=None):
+    def pre_before_execution_colab(self, name=None):
         self.starttime = time.time()
         if name is not None : self.name = name
 
@@ -73,6 +98,16 @@ class slackInstance():
         self.starttime = None
         self.name = "Cell"
         IPython.get_ipython().events.unregister('post_run_cell', notify_end_execution)
+
+    def post_notify_end_execution_autotrack(self, results):
+        if (self.starttime != None) and (time.time() - self.starttime) > self.autotrack_threshold and self.manual_track == False: 
+            self.post_message_to_slack(self.name+' execution ended', blocks=self.build_block_end_execution())
+        self.manual_track = False
+
+    def post_notify_end_execution_autotrack_colab(self):
+        if (self.starttime != None) and (time.time() - self.starttime) > self.autotrack_threshold and self.manual_track == False:
+            self.post_message_to_slack(self.name+' execution ended', blocks=self.build_block_end_execution())
+        self.manual_track = False
 
     def build_block_end_execution(self):
         endtime = time.time()
@@ -113,10 +148,12 @@ inst = slackInstance()
 
 if inst.ipython_version > 5:
     notify_end_execution = inst.notify_end_execution
-    before_execution = inst.before_execution
+    pre_before_execution = inst.pre_before_execution
+    post_notify_end_execution_autotrack = inst.post_notify_end_execution_autotrack
 else:
     notify_end_execution = inst.notify_end_execution_colab
-    before_execution = inst.before_execution_colab
+    pre_before_execution = inst.pre_before_execution_colab
+    post_notify_end_execution_autotrack = inst.post_notify_end_execution_autotrack_colab
 
 
 def load_ipython_extension(ipython):
@@ -136,9 +173,9 @@ def load_ipython_extension(ipython):
             inst.before_execution(name=name)
             ipython.events.register('post_run_cell', notify_end_execution)
         elif command[0] == 'autotrack':
-            min_time = command[command.index("-mintime")+1] if "-mintime" in command else 120
-            print("(jupyslack) autotrack activated")
-            ipython.events.register('pre_run_cell', inst.before_execution)
-            ipython.events.register('post_run_cell', notify_end_execution)
+            min_time = int(command[command.index("-mintime")+1]) if "-mintime" in command else 120
+            inst.setup_autotrack(autotrack_threshold=min_time)
+            ipython.events.register('pre_run_cell', pre_before_execution)
+            ipython.events.register('post_run_cell', post_notify_end_execution_autotrack)
 
 
