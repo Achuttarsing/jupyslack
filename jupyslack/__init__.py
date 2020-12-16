@@ -40,6 +40,13 @@ start_block = [
                 "type": "mrkdwn",
                 "text": "• *-mintime* : minimum runtime (sec) to send the notification (default=120)"
             }
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "And use *%jupyslack untrack* to stop the autotracking"
+            }
         }
     ]
 
@@ -177,5 +184,11 @@ def load_ipython_extension(ipython):
             inst.setup_autotrack(autotrack_threshold=min_time)
             ipython.events.register('pre_run_cell', pre_before_execution)
             ipython.events.register('post_run_cell', post_notify_end_execution_autotrack)
+        elif command[0] == 'untrack':
+            try:
+                ipython.events.unregister('pre_run_cell', pre_before_execution)
+                ipython.events.unregister('post_run_cell', post_notify_end_execution_autotrack)
+            except:
+                pass
 
 
