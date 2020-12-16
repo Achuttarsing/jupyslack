@@ -26,8 +26,27 @@ In [2]: %jupyslack setup <slack_token> <channel_name>
 In [3]: %jupyslack track
 ```
 
-#### You can give a name to the cell with : -name
+##### You can give a name to the cell with : -name
 
 ```python
 In [4]: %jupyslack track -name <name>
+```
+
+## New feature : automatic tracking
+This will notify you for all cells whose runtime is above 2 minutes
+
+```python
+In [5]: %jupyslack autotrack
+```
+
+##### You can set the minimum runtime with : -mintime (default=120)
+
+```python
+In [6]: %jupyslack autotrack -mintime <time_in_sec>
+```
+
+##### And stop the automatic tracking with :
+
+```python
+In [7]: %jupyslack untrack
 ```
