@@ -48,24 +48,28 @@ class slackInstance():
         }).json()
 
     def check_setup(self):
-        res = self.post_message_to_slack('Connected to Slack !', blocks=start_block)
+        res = self.post_message_to_slack('(jupyslack) Connected to Slack !', blocks=start_block)
         if res['ok'] is True:
             print("Connected to Slack !")
         else:
             print("Error :",res['error'])
 
-    def before_execution(self, name=None):
+    def before_execution(self, info, name=None):
+        self.starttime = time.time()
+        if name is not None : self.name = name
+
+    def before_execution_colab(self, name=None):
         self.starttime = time.time()
         if name is not None : self.name = name
 
     def notify_end_execution(self, results):
-        self.post_message_to_slack(self.name+' execution ended', blocks=self.build_block_end_execution())
+        if self.starttime != None: self.post_message_to_slack(self.name+' execution ended', blocks=self.build_block_end_execution())
         self.starttime = None
         self.name = "Cell"
         IPython.get_ipython().events.unregister('post_run_cell', notify_end_execution)
 
     def notify_end_execution_colab(self):
-        self.post_message_to_slack(self.name+' execution ended', blocks=self.build_block_end_execution())
+        if self.starttime != None: self.post_message_to_slack(self.name+' execution ended', blocks=self.build_block_end_execution())
         self.starttime = None
         self.name = "Cell"
         IPython.get_ipython().events.unregister('post_run_cell', notify_end_execution)
@@ -109,8 +113,10 @@ inst = slackInstance()
 
 if inst.ipython_version > 5:
     notify_end_execution = inst.notify_end_execution
+    before_execution = inst.before_execution
 else:
     notify_end_execution = inst.notify_end_execution_colab
+    before_execution = inst.before_execution_colab
 
 
 def load_ipython_extension(ipython):
@@ -120,7 +126,7 @@ def load_ipython_extension(ipython):
         command = shlex.split(args)
         if command[0] == 'setup':
             if len(command) != 3:
-                print("Please retry with : jupyslack setup <slack_token> #<channel_name>")
+                print("(jupyslack) Please retry with : jupyslack setup <slack_token> #<channel_name>")
             else:
                 inst.slack_channel = command[2] if command[2][0] == '#' else '#'+command[2]
                 inst.slack_token = globals()[command[1][1:]] if command[1][0] == '$' else command[1]
@@ -128,6 +134,11 @@ def load_ipython_extension(ipython):
         elif command[0] == 'track':
             name = command[command.index("-name")+1] if "-name" in command else None
             inst.before_execution(name=name)
+            ipython.events.register('post_run_cell', notify_end_execution)
+        elif command[0] == 'autotrack':
+            min_time = command[command.index("-mintime")+1] if "-mintime" in command else 120
+            print("(jupyslack) autotrack activated")
+            ipython.events.register('pre_run_cell', inst.before_execution)
             ipython.events.register('post_run_cell', notify_end_execution)
 
 
