@@ -2,7 +2,7 @@
 
 Slack integration for notebooks. Keep track of your code right in your pocket.
 
-<img src="https://github.com/Achuttarsing/jupyslack/blob/main/doc/assets/IMG_5411.PNG" alt="drawing" width="200"/><img src="https://github.com/Achuttarsing/jupyslack/blob/main/doc/assets/IMG_5412.PNG" alt="drawing" width="200"/>
+<img src="https://user-images.githubusercontent.com/24542347/105615091-347a2b80-5dce-11eb-9d10-a1f4d5bde196.jpg" alt="drawing" width="400"/>
 
 
 ## Installation :
