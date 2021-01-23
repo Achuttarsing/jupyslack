@@ -96,7 +96,7 @@ class slackInstance():
 
     def notify_end_execution(self, results):
         if self.starttime != None:
-            success_status = ":white_check_mark: " if ip.last_execution_succeeded == True else "x "
+            success_status = ":white_check_mark: " if ip.last_execution_succeeded == True else ":x: "
             self.post_message_to_slack(success_status+self.name+' execution ended', blocks=self.build_block_end_execution())
         self.starttime = None
         self.name = "Cell"
@@ -104,7 +104,7 @@ class slackInstance():
 
     def notify_end_execution_colab(self):
         if self.starttime != None:
-            success_status = ":white_check_mark: " if ip.last_execution_succeeded == True else "x "
+            success_status = ":white_check_mark: " if ip.last_execution_succeeded == True else ":x: "
             self.post_message_to_slack(success_status+self.name+' execution ended', blocks=self.build_block_end_execution())
         self.starttime = None
         self.name = "Cell"
@@ -112,13 +112,13 @@ class slackInstance():
 
     def post_notify_end_execution_autotrack(self, results):
         if (self.starttime != None) and (time.time() - self.starttime) > self.autotrack_threshold and self.manual_track == False:
-            success_status = ":white_check_mark: " if ip.last_execution_succeeded == True else "x "
+            success_status = ":white_check_mark: " if ip.last_execution_succeeded == True else ":x: "
             self.post_message_to_slack(success_status+self.name+' execution ended', blocks=self.build_block_end_execution())
         self.manual_track = False
 
     def post_notify_end_execution_autotrack_colab(self):
         if (self.starttime != None) and (time.time() - self.starttime) > self.autotrack_threshold and self.manual_track == False:
-            success_status = ":white_check_mark: " if ip.last_execution_succeeded == True else "x "
+            success_status = ":white_check_mark: " if ip.last_execution_succeeded == True else ":x: "
             self.post_message_to_slack(success_status+self.name+' execution ended', blocks=self.build_block_end_execution())
         self.manual_track = False
 
