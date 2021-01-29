@@ -1,4 +1,5 @@
 # jupyslack
+[![Downloads](https://pepy.tech/badge/jupyslack/month)](https://pepy.tech/project/jupyslack)
 
 Slack integration for notebooks. Keep track of your code right in your pocket.
 
